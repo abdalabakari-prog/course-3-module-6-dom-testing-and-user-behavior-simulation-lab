@@ -1,5 +1,5 @@
 // ==============================
-// Reusable Utility Functions
+// Utility
 // ==============================
 function createElementWithAttributes(tag, attributes = {}) {
   const element = document.createElement(tag);
@@ -20,75 +20,68 @@ function displayError(message) {
   errorElement.classList.remove('hidden');
 }
 
-function clearError() {
-  const errorElement = document.getElementById('error-message');
-  if (!errorElement) return;
-
-  errorElement.textContent = '';
-  errorElement.classList.add('hidden');
-}
-
 // ==============================
-// DOM Manipulation Functions
+// DOM Manipulation (REQUIRED API)
 // ==============================
-function addItemToList(text) {
-  const list = document.getElementById('item-list');
-  if (!list) {
-    displayError('Item list not found.');
-    return;
+function addElementToDOM(id, content) {
+  let element = document.getElementById(id);
+
+  if (!element) {
+    element = createElementWithAttributes('div', { id });
+    document.body.appendChild(element);
   }
 
-  const listItem = createElementWithAttributes('li', {
-    'data-testid': 'list-item'
+  element.textContent = content;
+}
+
+function removeElementFromDOM(id) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.remove();
+  }
+}
+
+function simulateClick(id, content) {
+  let element = document.getElementById(id);
+
+  if (!element) {
+    element = createElementWithAttributes('button', { id });
+    document.body.appendChild(element);
+  }
+
+  element.addEventListener('click', () => {
+    element.textContent = content;
   });
 
-  listItem.textContent = text;
-  list.appendChild(listItem);
+  element.click();
 }
 
-function handleFormSubmit(event) {
-  event.preventDefault();
-
-  const input = document.getElementById('item-input');
-  if (!input) {
-    displayError('Input field not found.');
-    return;
+// ==============================
+// Form Handling
+// ==============================
+function handleFormSubmit(event = {}) {
+  if (event.preventDefault) {
+    event.preventDefault();
   }
 
-  const value = input.value.trim();
-
-  if (value === '') {
+  const input = document.getElementById('item-input');
+  if (!input || input.value.trim() === '') {
     displayError('Input cannot be empty.');
     return;
   }
 
-  clearError();
-  addItemToList(value);
+  addElementToDOM('dynamic-content', input.value);
   input.value = '';
 }
 
 // ==============================
-// Simulate User Behavior
+// Exports for Jest
 // ==============================
-function initEventListeners() {
-  const form = document.getElementById('item-form');
-  if (!form) {
-    displayError('Form not found.');
-    return;
-  }
-
-  form.addEventListener('submit', handleFormSubmit);
-}
-
-// Initialize listeners when DOM loads
-document.addEventListener('DOMContentLoaded', initEventListeners);
-
-// Export for Jest testing
 module.exports = {
-  createElementWithAttributes,
-  displayError,
-  clearError,
-  addItemToList,
+  addElementToDOM,
+  removeElementFromDOM,
+  simulateClick,
   handleFormSubmit,
-  initEventListeners
+  createElementWithAttributes,
+  displayError
 };
